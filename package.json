@@ -1,0 +1,26 @@
+{
+  "name": "schnell",
+  "version": "0.0.1",
+  "description": "Schnell - The Node Shell: Modern, Cross-Platform, Intuitive Shell",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Larisho/Schnell.git"
+  },
+  "keywords": [
+    "shell",
+    "node",
+    "javascript",
+    "cross-platform",
+    "modern"
+  ],
+  "author": "Gabriele Bianchet-David",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Larisho/Schnell/issues"
+  },
+  "homepage": "https://github.com/Larisho/Schnell#readme"
+}
