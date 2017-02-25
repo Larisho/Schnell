@@ -39,24 +39,27 @@ Parser.prototype.parse = function (userInput) {
 
             // Iterate through the rest of the text until
             // a matching operator is found.
-            do {
-
-                // If that operator is not found,
-                // throw a syntax error.
-                if (i > raw.length) {
-                    // throw error!
-                    console.log('You done goofed!');
-                    process.exit(1);
-                }
+            while (raw[i][length] !== artifact) {
 
                 // Append next word to total string
                 totalString += raw[i] + ' ';
                 // Increment 'i'
                 i++;
+
+                // If that operator is not found,
+                // throw a syntax error.
+                if (i >= raw.length) {
+                    // throw error!
+                    console.log('You done goofed!');
+                    process.exit(1);
+                }
+
                 // Get length of next word
                 length = raw[i].length - 1;
-            } while (raw[i][length] !== artifact);
-            argv.push(totalString.trim());
+            }
+            totalString += raw[i];
+            argv.push(totalString);
+            console.log("Just pushed and this is i: ${i}", i);
         }
         else {
             argv.push(raw[i]);
