@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/Larisho/Schnell/issues"
   },
-  "homepage": "https://github.com/Larisho/Schnell#readme"
+  "homepage": "https://github.com/Larisho/Schnell#readme",
+  "bin": {
+    "schnell": "./dist/schnell.js",
+    "shn": "./dist/schnell.js"
+  }
 }
