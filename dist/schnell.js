@@ -14,6 +14,9 @@ const os = require('os');
 const parse = require('./parse');
 let parser = new parse();
 
+// Import syntactic checker
+const checkSyntax = require('./syntax');
+
 const errors = require('./errors');
 
 // Defining cross-plat constant for EOL
@@ -38,13 +41,20 @@ rl.prompt();
 rl.on('line', (line) => {
     try {
         parser.parse(line);
+
+        console.log(parser.argv + EOL);
+
+        let AST = checkSyntax(parser.argv);
+
+        console.log(AST);
+
+        //evaluate(AST);
     } catch (e) {
         if (e.name === 'SyntaxError')
             e.printError();
+        else
+            console.log(e);
     }
-    console.log(parser.argv);
-
-    evaluate(parser.argv);
 
     rl.prompt();
 }).on('close', () => {
