@@ -26,7 +26,12 @@ class Parser {
             // whole string a token
             if (raw[i][0] === '"' || raw[i][0] === "'") {
 
-                if (raw[i + 1] === undefined) {
+                if (raw[i][raw[i].length - 1] === "'" || raw[i][raw[i].length - 1] === '"') {
+                    argv.push(raw[i]);
+                    continue;
+                }
+
+                if (raw[i] === undefined) {
                     throw new errors.SyntaxError("Unterminated String", raw.join(' '));
                 }
 
