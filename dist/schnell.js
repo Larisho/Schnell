@@ -10,6 +10,9 @@ const readLine = require('readline');
 // Import OS for cross platform EOL
 const os = require('os');
 
+// Import the UNIX Shell commands from ShellJS
+const shell = require('shelljs');
+
 // Import the parser
 const parse = require('./parse');
 let parser = new parse();
@@ -17,13 +20,17 @@ let parser = new parse();
 // Import syntactic checker
 const checkSyntax = require('./syntax');
 
+// Import evaluation module
+const evaluate = require('./evaluation');
+
+// Import the errors
 const errors = require('./errors');
 
 // Defining cross-plat constant for EOL
 let EOL = os.EOL;
 
 // Defining prompt
-let prompt = "$ ";
+let prompt = os.userInfo().username + "@" + os.hostname() + " " + shell.pwd() + ">" + EOL + "$ ";
 
 // Create the CLI instance
 let rl = readLine.createInterface({
@@ -48,7 +55,7 @@ rl.on('line', (line) => {
 
         console.log(AST);
 
-        //evaluate(AST);
+        evaluate(AST);
     } catch (e) {
         if (e.name === 'SyntaxError')
             e.printError();
@@ -56,6 +63,8 @@ rl.on('line', (line) => {
             console.log(e);
     }
 
+    let prompt = os.userInfo().username + "@" + os.hostname() + " " + shell.pwd() + ">" + EOL + "$ ";
+    rl.setPrompt(prompt, prompt.length);
     rl.prompt();
 }).on('close', () => {
     console.log(EOL + "Exiting...");
