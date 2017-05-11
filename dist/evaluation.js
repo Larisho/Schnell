@@ -14,7 +14,15 @@ const shell = require('shelljs');
  */
 
 function evaluate(inputAST) {
-    shell[inputAST[0].value](inputAST[1].value);
+
+    if (inputAST[0].value === "exit") {
+        console.log("Exiting...");
+        process.exit(0);
+    }
+
+    let returnValue = shell[inputAST[0].value](inputAST[1].value);
+
+    console.log(returnValue.stdout);
 }
 
 exports = module.exports = evaluate;
