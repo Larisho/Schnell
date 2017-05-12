@@ -1,8 +1,10 @@
+"use strict";
+
 /*
  * Main File to set up the CLI.
  */
 
-"use strict";
+/***************************************** IMPORTS ******************************************************************/
 
 // Import Readline module to read lines from command line
 const readLine = require('readline');
@@ -10,12 +12,14 @@ const readLine = require('readline');
 // Import OS for cross platform EOL
 const os = require('os');
 
+// Node.js version of NCurses
+const colors = require('colors');
+
 // Import the UNIX Shell commands from ShellJS
-const shell = require('shelljs');
+const builtins = require('./builtins');
 
 // Import the parser
 const parse = require('./parse');
-let parser = new parse();
 
 // Import syntactic checker
 const checkSyntax = require('./syntax');
@@ -26,26 +30,42 @@ const evaluate = require('./evaluation');
 // Import the errors
 const errors = require('./errors');
 
+/*************************************END IMPORTS*******************************************************************/
+
+
+/**************************************CONSTANTS********************************************************************/
+
 // Defining cross-plat constant for EOL
-let EOL = os.EOL;
+const EOL = os.EOL;
 
 // Defining prompt
-let prompt = os.userInfo().username + "@" + os.hostname() + " " + shell.pwd() + ">" + EOL + "$ ";
+const prompt = os.userInfo().username + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
 
 // Create the CLI instance
-let rl = readLine.createInterface({
+const cli = readLine.createInterface({
     input: process.stdin,
     output: process.stdout,
     completer: null
 });
 
-// Set the prompt
-rl.setPrompt(prompt, prompt.length);
+colors.setTheme({
+    prompt: ['green', 'bold'],
+    stdout: ['bold', 'gray'],
+    stderr: ['red', 'underline']
+});
 
-// Start prompt loop
-rl.prompt();
+// Create parser object
+const parser = new parse();
 
-rl.on('line', (line) => {
+/***********************************END CONSTANTS*******************************************************************/
+
+/**************************************HELPER FUNCTIONS*************************************************************/
+
+function buildPrompt() {
+
+}
+
+function mainLoop(line) {
     try {
         parser.parse(line);
 
@@ -63,10 +83,21 @@ rl.on('line', (line) => {
             console.log(e);
     }
 
-    let prompt = os.userInfo().username + "@" + os.hostname() + " " + shell.pwd() + ">" + EOL + "$ ";
-    rl.setPrompt(prompt, prompt.length);
-    rl.prompt();
-}).on('close', () => {
+    let prompt = os.userInfo().username + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
+    cli.setPrompt(prompt, prompt.length);
+    cli.prompt();
+}
+
+function onInterrupt() {
     console.log(EOL + "Exiting...");
     process.exit(0);
-});
+}
+
+// Set the prompt
+cli.setPrompt(prompt, prompt.length);
+
+// Start prompt loop
+cli.prompt();
+
+cli.on('line', mainLoop)
+    .on('close', onInterrupt);

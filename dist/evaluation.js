@@ -4,7 +4,7 @@
 
 "use strict";
 
-const shell = require('shelljs');
+const builtins = require('./builtins');
 
 /**
  * Takes the AST and executes the appropriate commands.
@@ -19,10 +19,12 @@ function evaluate(inputAST) {
         console.log("Exiting...");
         process.exit(0);
     }
+    if (inputAST[0].value === "man") {
+        console.log("No manual files available");
+        return "No manual files available";
+    }
 
-    let returnValue = shell[inputAST[0].value](inputAST[1].value);
-
-    console.log(returnValue.stdout);
+    return builtins[inputAST[0].value](inputAST.slice(1));
 }
 
 exports = module.exports = evaluate;
