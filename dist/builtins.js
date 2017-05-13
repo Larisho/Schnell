@@ -1,6 +1,10 @@
 "use strict";
 
 const path = require('path');
+const fs = require('fs');
+const stdout = require('./schnell').toStdout;
+const stderr = require('./schnell').toStderr;
+const errors = require('./errors');
 
 let builtins = {
     cd: cd,
@@ -19,17 +23,39 @@ let builtins = {
     tail: tail,
     touch: touch,
     which: which,
-    ping: ping
+    ping: ping,
+    man: man
 };
 
 /**
  * Changes the current, working directory.
  *
- * @param rest Switches and Arguments
+ * @param input Switches and Arguments
  * @return string STDOUT
  */
-function cd(...rest) {
+function cd(input) {
 
+    let usage = 'Usage: cd [PATH]';
+    let dir = input[0];
+
+    if (input.length === 1) {
+        if (path.isAbsolute(dir)) {
+            if (fs.existsSync(dir))
+                process.chdir(dir);
+            else
+                throw new errors.DirError(dir);
+        }
+        else {
+            dir = path.normalize(dir);
+            process.chdir(dir);
+        }
+    }
+    else if(input.length === 0) {
+        return "This behaviour has not been defined yet";
+    }
+    else {
+        throw new errors.CommandUseError(usage);
+    }
 }
 
 function ls() {
@@ -82,13 +108,14 @@ function pwd(args) {
 
     const usage = "Usage: pwd [--help]";
 
-    if (args && args.length > 0) {
-        if (args.length > 1) {
-            return 'Too many arguments.\n' + usage;
-        }
-        if (args[0].value === "--help" || args[0].value === "-h") {
+    if (args) {
+        if (args[0] === "--help" || args[0] === "-h") {
             return usage;
         }
+        else {
+            throw new errors.CommandUseError(usage);
+        }
+
     }
 
     return path.resolve(process.cwd());
@@ -112,6 +139,10 @@ function which() {
 
 function ping() {
 
+}
+
+function man() {
+    return 'There are no manual pages available';
 }
 
 module.exports = builtins;

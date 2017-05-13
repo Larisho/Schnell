@@ -4,26 +4,34 @@
 
 "use strict";
 
+const colors = require('colors');
 const builtins = require('./builtins');
+const errors = require('./errors');
 
 /**
  * Takes the AST and executes the appropriate commands.
  *
- * @param inputAST AST received from syntax analysis
- * @return String
+ * @param input AST received from syntax analysis
+ * @return string STDOUT
  */
 
-function evaluate(inputAST) {
+function evaluate(input) {
 
-    if (inputAST[0].value === "exit") {
-        console.log("Exiting...");
+    if (input[0] === "exit") {
+        process.stdout.write("Exiting...\n".gray.bold);
         process.exit(0);
     }
-    if (inputAST[0].value === "man") {
-        return "No manual files available";
-    }
 
-    return builtins[inputAST[0].value](inputAST.slice(1));
+    try {
+        return builtins[input[0]](input.slice(1));
+    } catch (e) {
+        if (e instanceof TypeError) {
+            throw new errors.CommandError(input[0]);
+        }
+        else {
+            throw e;
+        }
+    }
 }
 
 module.exports = evaluate;

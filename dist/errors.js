@@ -1,37 +1,58 @@
-/*
+"use strict";
+
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
  * Implementation of custom error classes.
  */
 
-"use strict";
-
 class BashError extends Error {
-    constructor(message, errorHint) {
+    constructor(message) {
         super(message);
 
         this.name = this.constructor.name;
-        if (errorHint)
-            this.errorHint = errorHint;
     }
 
-    printError() {
-        console.log(this.message + ': ' + this.errorHint);
+    getErrorMessage() {
+        return ('Error: Something went wrong with the shell! ' + this.message);
     }
 }
 
-class SyntaxError extends BashError {
-    constructor(message, where) {
-        super(message);
+class CommandError extends BashError {
 
-        this.name = this.constructor.name;
-        this.errorHint = where;
+    getErrorMessage() {
+        return ('Error: Command "' + this.message + '" cannot be found');
     }
+}
 
-    printError() {
-        console.log(this.message + ': [ ' + this.errorHint + ' ]');
+class CommandUseError extends BashError {
+
+    getErrorMessage() {
+        return ('Unrecognized input - ' + this.message);
+    }
+}
+
+class DirError extends BashError {
+
+    getErrorMessage() {
+        return ('Error: "' + this.message + '" does not exist');
+    }
+}
+
+class FileError extends BashError {
+
+    getErrorMessage() {
+        return ('Error: File "' + this.message + '" does not exist');
     }
 }
 
 module.exports = {
     BashError,
-    SyntaxError
+    CommandError,
+    CommandUseError,
+    DirError,
+    FileError
 };

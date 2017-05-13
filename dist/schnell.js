@@ -25,10 +25,10 @@ const colors = require('colors');
 const builtins = require('./builtins');
 
 // Import the parser
-const parse = require('./parse');
+const parser = require('./parse');
 
 // Import syntactic checker
-const checkSyntax = require('./syntax');
+// const checkSyntax = require('./syntax');
 
 // Import evaluation module
 const evaluate = require('./evaluation');
@@ -56,12 +56,18 @@ colors.setTheme({
     stderr: ['red', 'underline']
 });
 
-// Create parser object
-const parser = new parse();
-
 /***********************************END CONSTANTS*******************************************************************/
 
 /**************************************HELPER FUNCTIONS*************************************************************/
+
+
+function toStdout(text) {
+    process.stdout.write(text.stdout + EOL + EOL);
+}
+
+function toStderr(text) {
+    process.stderr.write(text.stderr + EOL + EOL);
+}
 
 function buildPrompt() {
     let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
@@ -69,25 +75,17 @@ function buildPrompt() {
 }
 
 function mainLoop(line) {
-
     try {
-        parser.parse(line);
 
-        console.log(parser.argv + EOL);
+        let output = evaluate(parser(line.trim())) || "";
 
-        let AST = checkSyntax(parser.argv);
-
-        console.log(AST);
-
-        let stdout = evaluate(AST);
-
-        console.log(stdout.stdout);
+        toStdout(output);
 
     } catch (e) {
-        if (e.name === 'SyntaxError')
-            e.printError();
+        if (e instanceof errors.BashError)
+            toStderr(e.getErrorMessage());
         else
-            console.log(e.stack.toString().stderr);
+            toStderr(e);
     }
 
     // Rebuild prompt
@@ -97,7 +95,7 @@ function mainLoop(line) {
 }
 
 function onInterrupt() {
-    console.log(EOL + "Exiting...".stdout);
+    toStdout("Exiting...");
     process.exit(0);
 }
 
@@ -115,3 +113,9 @@ cli.prompt();
 
 cli.on('line', mainLoop)
     .on('close', onInterrupt);
+
+
+module.exports = {
+    toStderr,
+    toStdout
+};
