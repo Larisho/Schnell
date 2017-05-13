@@ -1,44 +1,75 @@
-/*
- * Main File to set up the CLI.
- */
-
 "use strict";
 
-// Import Readline module to read lines from command line
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Main file in the Schnell application. Sets up the CLI and calls
+ * the Read, Evaluate, Print, Loop.
+ */
+
+/***************************************** IMPORTS ******************************************************************/
+
+// Import read-line module to read lines from command line
 const readLine = require('readline');
 
 // Import OS for cross platform EOL
 const os = require('os');
 
+// Node.js version of NCurses' color manipulation features
+const colors = require('colors');
+
+// Import the UNIX Shell commands
+const builtins = require('./builtins');
+
 // Import the parser
 const parse = require('./parse');
-let parser = new parse();
 
 // Import syntactic checker
 const checkSyntax = require('./syntax');
 
+// Import evaluation module
+const evaluate = require('./evaluation');
+
+// Import the errors
 const errors = require('./errors');
 
-// Defining cross-plat constant for EOL
-let EOL = os.EOL;
+/*************************************END IMPORTS*******************************************************************/
 
-// Defining prompt
-let prompt = "$ ";
+/**************************************CONSTANTS********************************************************************/
+
+// Defining cross-plat constant for EOL
+const EOL = os.EOL;
 
 // Create the CLI instance
-let rl = readLine.createInterface({
+const cli = readLine.createInterface({
     input: process.stdin,
     output: process.stdout,
     completer: null
 });
 
-// Set the prompt
-rl.setPrompt(prompt, prompt.length);
+colors.setTheme({
+    prompt: ['green', 'bold'],
+    stdout: ['bold', 'gray'],
+    stderr: ['red', 'underline']
+});
 
-// Start prompt loop
-rl.prompt();
+// Create parser object
+const parser = new parse();
 
-rl.on('line', (line) => {
+/***********************************END CONSTANTS*******************************************************************/
+
+/**************************************HELPER FUNCTIONS*************************************************************/
+
+function buildPrompt() {
+    let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
+    return str.prompt;
+}
+
+function mainLoop(line) {
+
     try {
         parser.parse(line);
 
@@ -48,16 +79,39 @@ rl.on('line', (line) => {
 
         console.log(AST);
 
-        //evaluate(AST);
+        let stdout = evaluate(AST);
+
+        console.log(stdout.stdout);
+
     } catch (e) {
         if (e.name === 'SyntaxError')
             e.printError();
         else
-            console.log(e);
+            console.log(e.stack.toString().stderr);
     }
 
-    rl.prompt();
-}).on('close', () => {
-    console.log(EOL + "Exiting...");
+    // Rebuild prompt
+    prompt = buildPrompt();
+    cli.setPrompt(prompt, prompt.length);
+    cli.prompt();
+}
+
+function onInterrupt() {
+    console.log(EOL + "Exiting...".stdout);
     process.exit(0);
-});
+}
+
+/**********************************END HELPER FUNCTIONS*************************************************************/
+
+/*********************************************MAIN******************************************************************/
+
+let prompt = buildPrompt();
+
+// Set the prompt
+cli.setPrompt(prompt, prompt.length);
+
+// Start prompt loop
+cli.prompt();
+
+cli.on('line', mainLoop)
+    .on('close', onInterrupt);
