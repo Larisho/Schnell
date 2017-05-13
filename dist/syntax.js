@@ -1,8 +1,14 @@
-/*
- * Contains the syntactic checker for each shell input.
- */
-
 "use strict";
+
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * File that handles parsing the syntax and creating
+ * an AST of sorts.
+ */
 
 const errors = require('./errors');
 
@@ -77,4 +83,4 @@ Array.prototype.peek = function() {
     return this[this.length - 1];
 };
 
-exports = module.exports = checkSyntax;
+module.exports = checkSyntax;

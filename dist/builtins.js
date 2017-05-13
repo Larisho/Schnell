@@ -114,4 +114,4 @@ function ping() {
 
 }
 
-exports = module.exports = builtins;
+module.exports = builtins;

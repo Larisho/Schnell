@@ -31,7 +31,7 @@ class SyntaxError extends BashError {
     }
 }
 
-exports = module.exports = {
+module.exports = {
     BashError,
     SyntaxError
 };
