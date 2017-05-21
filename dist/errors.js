@@ -21,6 +21,18 @@ class BashError extends Error {
     }
 }
 
+class ScriptError extends Error {
+    constructor(message) {
+        super(message);
+
+        this.name = this.constructor.name;
+    }
+
+    getErrorMessage() {
+        return this.message;
+    }
+}
+
 class CommandError extends BashError {
 
     getErrorMessage() {
@@ -46,18 +58,6 @@ class FileError extends BashError {
 
     getErrorMessage() {
         return ('Error: File "' + this.message + '" does not exist');
-    }
-}
-
-class ScriptError extends Error {
-    constructor(message) {
-        super(message);
-
-        this.name = this.constructor.name;
-    }
-
-    getErrorMessage() {
-        return this.message;
     }
 }
 

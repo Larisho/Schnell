@@ -10,6 +10,7 @@
  */
 
 const path = require('path');
+const os = require('os');
 const fs = require('fs');
 const util = require('./util');
 const errors = require('./errors');
@@ -48,6 +49,9 @@ function cd(input) {
     let dir = input[0];
 
     if (input.length === 1) {
+        if (dir === '~') {
+            process.chdir(os.homedir());
+        }
         if (path.isAbsolute(dir)) {
             if (fs.existsSync(dir))
                 process.chdir(dir);
@@ -60,7 +64,7 @@ function cd(input) {
         }
     }
     else if(input.length === 0) {
-        return "This behaviour has not been defined yet";
+        process.chdir(os.homedir());
     }
     else {
         throw new errors.CommandUseError(usage);
@@ -110,14 +114,14 @@ function mv() {
 /**
  * Print the present working directory.
  *
- * @param args Array of tokenized STDIN
+ * @param args Array STDIN
  * @return string STDOUT
  */
 function pwd(args) {
 
     const usage = "Usage: pwd [--help]";
 
-    if (args) {
+    if (args && args.length === 1) {
         if (args[0] === "--help" || args[0] === "-h") {
             return usage;
         }
@@ -126,8 +130,10 @@ function pwd(args) {
         }
 
     }
-
-    return path.resolve(process.cwd());
+    else if (args && args.length > 1)
+        throw new errors.CommandUseError(usage);
+    else
+        return path.resolve(process.cwd());
 }
 
 function rm() {
@@ -158,7 +164,7 @@ function ping() {
 function js(input) {
     let writeFunc = "function write(...input){process.stdout.write(input.join())} ";
     let code = writeFunc + input.join(" ");
-    util.write(false, code);
+
     let func = new Function(code);
 
     try {

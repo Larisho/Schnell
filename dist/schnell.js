@@ -65,9 +65,9 @@ function mainLoop(line) {
 
     } catch (e) {
         if (e instanceof errors.BashError)
-            util.write(true, e.getErrorMessage());
+            util.write(true, e.getErrorMessage() + EOL);
         else if (e instanceof errors.ScriptError)
-            util.write(true, e.getErrorMessage());
+            util.write(true, e.getErrorMessage() + EOL);
         else
             util.write(true, e);
     }
@@ -102,3 +102,5 @@ cli.prompt();
 
 cli.on('line', mainLoop)
     .on('close', onInterrupt);
+
+module.exports = parse;

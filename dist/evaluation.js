@@ -27,9 +27,11 @@ function evaluate(input) {
     if (input[0] === "exit") {
         return "Exiting...";
     }
-
     try {
-        return builtins[input[0]](input.slice(1));
+        if (input.length < 2)
+            return builtins[input[0]]([]);
+        else
+            return builtins[input[0]](input.slice(1));
     } catch (e) {
         if (e instanceof TypeError) {
             throw new errors.CommandError(input[0]);
