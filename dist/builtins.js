@@ -1,9 +1,17 @@
 "use strict";
 
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Implementation of built in commands
+ */
+
 const path = require('path');
 const fs = require('fs');
-const stdout = require('./schnell').toStdout;
-const stderr = require('./schnell').toStderr;
+const util = require('./util');
 const errors = require('./errors');
 
 let builtins = {
@@ -24,6 +32,7 @@ let builtins = {
     touch: touch,
     which: which,
     ping: ping,
+    js: js,
     man: man
 };
 
@@ -74,7 +83,7 @@ function echo() {
 
 }
 
-function cat() {
+function cat(input) {
 
 }
 
@@ -139,6 +148,26 @@ function which() {
 
 function ping() {
 
+}
+
+/**
+ * Allows the user to execute JS code on the system
+ * @param input
+ * @returns {string}
+ */
+function js(input) {
+    let writeFunc = "function write(...input){process.stdout.write(input.join())} ";
+    let code = writeFunc + input.join(" ");
+    util.write(false, code);
+    let func = new Function(code);
+
+    try {
+        func();
+        return "";
+    }
+    catch (e) {
+        throw new errors.ScriptError(e.message);
+    }
 }
 
 function man() {

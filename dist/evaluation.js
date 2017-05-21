@@ -1,10 +1,14 @@
-/*
- * Contains the logic of execution of the shell commands.
- */
-
 "use strict";
 
-const colors = require('colors');
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Evaluate user input string function
+ */
+
 const builtins = require('./builtins');
 const errors = require('./errors');
 
@@ -17,9 +21,11 @@ const errors = require('./errors');
 
 function evaluate(input) {
 
+    if (input[0] === "")
+        return "";
+
     if (input[0] === "exit") {
-        process.stdout.write("Exiting...\n".gray.bold);
-        process.exit(0);
+        return "Exiting...";
     }
 
     try {

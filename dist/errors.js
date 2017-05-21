@@ -49,8 +49,21 @@ class FileError extends BashError {
     }
 }
 
+class ScriptError extends Error {
+    constructor(message) {
+        super(message);
+
+        this.name = this.constructor.name;
+    }
+
+    getErrorMessage() {
+        return this.message;
+    }
+}
+
 module.exports = {
     BashError,
+    ScriptError,
     CommandError,
     CommandUseError,
     DirError,

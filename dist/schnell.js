@@ -18,17 +18,11 @@ const readLine = require('readline');
 // Import OS for cross platform EOL
 const os = require('os');
 
-// Node.js version of NCurses' color manipulation features
-const colors = require('colors');
+// Import the utilities class
+const util = require('./util');
 
 // Import the UNIX Shell commands
 const builtins = require('./builtins');
-
-// Import the parser
-const parser = require('./parse');
-
-// Import syntactic checker
-// const checkSyntax = require('./syntax');
 
 // Import evaluation module
 const evaluate = require('./evaluation');
@@ -50,42 +44,32 @@ const cli = readLine.createInterface({
     completer: null
 });
 
-colors.setTheme({
-    prompt: ['green', 'bold'],
-    stdout: ['bold', 'gray'],
-    stderr: ['red', 'underline']
-});
-
 /***********************************END CONSTANTS*******************************************************************/
 
 /**************************************HELPER FUNCTIONS*************************************************************/
 
-
-function toStdout(text) {
-    process.stdout.write(text.stdout + EOL + EOL);
-}
-
-function toStderr(text) {
-    process.stderr.write(text.stderr + EOL + EOL);
-}
-
 function buildPrompt() {
-    let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
-    return str.prompt;
+    let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "δ ";
+    return util.promptColour(str);
 }
 
 function mainLoop(line) {
     try {
 
-        let output = evaluate(parser(line.trim())) || "";
+        let output = evaluate(parse(line.trim())) || "";
 
-        toStdout(output);
+        util.write(false, output + EOL);
+
+        if (output === "Exiting...")
+            process.exit(0);
 
     } catch (e) {
         if (e instanceof errors.BashError)
-            toStderr(e.getErrorMessage());
+            util.write(true, e.getErrorMessage());
+        else if (e instanceof errors.ScriptError)
+            util.write(true, e.getErrorMessage());
         else
-            toStderr(e);
+            util.write(true, e);
     }
 
     // Rebuild prompt
@@ -95,8 +79,13 @@ function mainLoop(line) {
 }
 
 function onInterrupt() {
-    toStdout("Exiting...");
+    util.write(false, "Exiting...");
     process.exit(0);
+}
+
+function parse(userInput) {
+    // tokenize the input
+    return userInput.split(" ");
 }
 
 /**********************************END HELPER FUNCTIONS*************************************************************/
@@ -113,9 +102,3 @@ cli.prompt();
 
 cli.on('line', mainLoop)
     .on('close', onInterrupt);
-
-
-module.exports = {
-    toStderr,
-    toStdout
-};

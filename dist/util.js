@@ -1,0 +1,30 @@
+"use strict";
+
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Utility functions
+ */
+
+const chalk = require("chalk");
+
+const stdoutColour = chalk.white;
+const stderrColour = chalk.bold.red;
+const promptColour = chalk.green;
+
+function write(isError, ...rest) {
+    if (isError)
+        stderrColour(console.error(rest.join("")));
+    else
+        stdoutColour(console.log(rest.join("")));
+}
+
+module.exports = {
+    stdoutColour,
+    stderrColour,
+    promptColour,
+    write
+};
