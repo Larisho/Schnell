@@ -162,13 +162,17 @@ function ping() {
  * @returns {string}
  */
 function js(input) {
-    let writeFunc = "function write(...input){process.stdout.write(input.join())} ";
-    let code = writeFunc + input.join(" ");
 
-    let func = new Function(code);
+    function writeFunc(...input) {
+        process.stdout.write(input.join(""))
+    }
+
+    let code = input.join(" ");
+
+    let func = new Function('require', 'write', code);
 
     try {
-        func();
+        func(require, writeFunc);
         return "";
     }
     catch (e) {

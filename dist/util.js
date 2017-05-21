@@ -13,7 +13,7 @@ const chalk = require("chalk");
 
 const stdoutColour = chalk.white;
 const stderrColour = chalk.bold.red;
-const promptColour = chalk.green;
+const promptColour = chalk.green.bold;
 
 function write(isError, ...rest) {
     if (isError)

@@ -69,7 +69,7 @@ function mainLoop(line) {
         else if (e instanceof errors.ScriptError)
             util.write(true, e.getErrorMessage() + EOL);
         else
-            util.write(true, e);
+            util.write(true, e + EOL);
     }
 
     // Rebuild prompt
