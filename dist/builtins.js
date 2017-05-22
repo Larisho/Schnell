@@ -12,6 +12,7 @@
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const clear = require('clear');
 const util = require('./util');
 const errors = require('./errors');
 
@@ -22,6 +23,7 @@ let builtins = {
     chmod: chmod,
     echo: echo,
     cat: cat,
+    clear: clear,
     find: find,
     mkdir: mkdir,
     rmdir: rmdir,
@@ -124,15 +126,15 @@ function mv() {
 /**
  * Print the present working directory.
  *
- * @param args Array STDIN
+ * @param input Array STDIN
  * @return string STDOUT
  */
-function pwd(args) {
+function pwd(input) {
 
     const usage = "Usage: pwd [--help]";
 
-    if (args && args.length === 1) {
-        if (args[0] === "--help" || args[0] === "-h") {
+    if (input && input.length === 1) {
+        if (input[0] === "--help" || input[0] === "-h") {
             return usage;
         }
         else {
@@ -140,7 +142,7 @@ function pwd(args) {
         }
 
     }
-    else if (args && args.length > 1)
+    else if (input && input.length > 1)
         throw new errors.CommandUseError(usage);
     else
         return path.resolve(process.cwd());
@@ -154,7 +156,14 @@ function tail() {
 
 }
 
-function touch() {
+/**
+ * Creates a file with the given name in
+ * the directory the user is currently in.
+ *
+ * @param input Array STDIN
+ * @return string STDOUT
+ */
+function touch(input) {
 
 }
 
