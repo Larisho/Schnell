@@ -58,7 +58,7 @@ function mainLoop(line) {
 
         let output = evaluate(parse(line.trim())) || "";
 
-        util.write(false, output + EOL);
+        util.write(false, output);
 
         if (output === "Exiting...")
             process.exit(0);
@@ -102,5 +102,3 @@ cli.prompt();
 
 cli.on('line', mainLoop)
     .on('close', onInterrupt);
-
-module.exports = parse;

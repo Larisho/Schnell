@@ -50,7 +50,7 @@ class CommandUseError extends BashError {
 class DirError extends BashError {
 
     getErrorMessage() {
-        return ('Error: "' + this.message + '" does not exist');
+        return ('Error: Directory "' + this.message + '" does not exist');
     }
 }
 

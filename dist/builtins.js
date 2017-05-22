@@ -46,28 +46,38 @@ let builtins = {
 function cd(input) {
 
     let usage = 'Usage: cd [PATH]';
+
     let dir = input[0];
 
-    if (input.length === 1) {
+    let flag = fs.existsSync(dir);
+
+    if (!flag && input.length <= 1) {
         if (dir === '~') {
             process.chdir(os.homedir());
+            return "";
         }
-        if (path.isAbsolute(dir)) {
-            if (fs.existsSync(dir))
-                process.chdir(dir);
-            else
-                throw new errors.DirError(dir);
+        if (!dir) {
+            process.chdir(os.homedir());
+            return "";
         }
-        else {
-            dir = path.normalize(dir);
-            process.chdir(dir);
-        }
-    }
-    else if(input.length === 0) {
-        process.chdir(os.homedir());
+
+        throw new errors.DirError(dir);
     }
     else {
-        throw new errors.CommandUseError(usage);
+        if (input.length === 1) {
+            if (path.isAbsolute(dir)) {
+                process.chdir(dir);
+                return "";
+            }
+            else {
+                dir = path.normalize(dir);
+                process.chdir(dir);
+                return "";
+            }
+        }
+        else {
+            throw new errors.CommandUseError(usage);
+        }
     }
 }
 
