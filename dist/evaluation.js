@@ -1,29 +1,45 @@
-/*
- * Contains the logic of execution of the shell commands.
- */
-
 "use strict";
 
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Evaluate user input string function
+ */
+
 const builtins = require('./builtins');
+const errors = require('./errors');
 
 /**
  * Takes the AST and executes the appropriate commands.
  *
- * @param inputAST AST received from syntax analysis
- * @return String
+ * @param input AST received from syntax analysis
+ * @return string STDOUT
  */
 
-function evaluate(inputAST) {
+function evaluate(input) {
 
-    if (inputAST[0].value === "exit") {
-        console.log("Exiting...");
-        process.exit(0);
-    }
-    if (inputAST[0].value === "man") {
-        return "No manual files available";
-    }
+    if (input[0] === "")
+        return "";
 
-    return builtins[inputAST[0].value](inputAST.slice(1));
+    if (input[0] === "exit") {
+        return "Exiting...";
+    }
+    try {
+        if (input.length < 2)
+            return builtins[input[0]]([]);
+        else
+            return builtins[input[0]](input.slice(1));
+    } catch (e) {
+        if (e instanceof TypeError) {
+            throw new errors.CommandError(input[0]);
+        }
+        else {
+            throw e;
+        }
+    }
 }
 
 module.exports = evaluate;

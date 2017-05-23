@@ -1,6 +1,20 @@
 "use strict";
 
+/**
+ * @author Gabriele Bianchet-David
+ * @version 0.0.1
+ *
+ * @description Cross-platform terminal
+ *
+ * Implementation of built in commands
+ */
+
 const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const clear = require('clear');
+const util = require('./util');
+const errors = require('./errors');
 
 let builtins = {
     cd: cd,
@@ -9,6 +23,7 @@ let builtins = {
     chmod: chmod,
     echo: echo,
     cat: cat,
+    clear: clear,
     find: find,
     mkdir: mkdir,
     rmdir: rmdir,
@@ -19,17 +34,53 @@ let builtins = {
     tail: tail,
     touch: touch,
     which: which,
-    ping: ping
+    ping: ping,
+    js: js,
+    man: man
 };
 
 /**
  * Changes the current, working directory.
  *
- * @param rest Switches and Arguments
+ * @param input Switches and Arguments
  * @return string STDOUT
  */
-function cd(...rest) {
+function cd(input) {
 
+    let usage = 'Usage: cd [PATH]';
+
+    let dir = input[0];
+
+    let flag = fs.existsSync(dir);
+
+    if (!flag && input.length <= 1) {
+        if (dir === '~') {
+            process.chdir(os.homedir());
+            return "";
+        }
+        if (!dir) {
+            process.chdir(os.homedir());
+            return "";
+        }
+
+        throw new errors.DirError(dir);
+    }
+    else {
+        if (input.length === 1) {
+            if (path.isAbsolute(dir)) {
+                process.chdir(dir);
+                return "";
+            }
+            else {
+                dir = path.normalize(dir);
+                process.chdir(dir);
+                return "";
+            }
+        }
+        else {
+            throw new errors.CommandUseError(usage);
+        }
+    }
 }
 
 function ls() {
@@ -48,7 +99,7 @@ function echo() {
 
 }
 
-function cat() {
+function cat(input) {
 
 }
 
@@ -75,23 +126,26 @@ function mv() {
 /**
  * Print the present working directory.
  *
- * @param args Array of tokenized STDIN
+ * @param input Array STDIN
  * @return string STDOUT
  */
-function pwd(args) {
+function pwd(input) {
 
     const usage = "Usage: pwd [--help]";
 
-    if (args && args.length > 0) {
-        if (args.length > 1) {
-            return 'Too many arguments.\n' + usage;
-        }
-        if (args[0].value === "--help" || args[0].value === "-h") {
+    if (input && input.length === 1) {
+        if (input[0] === "--help" || input[0] === "-h") {
             return usage;
         }
-    }
+        else {
+            throw new errors.CommandUseError(usage);
+        }
 
-    return path.resolve(process.cwd());
+    }
+    else if (input && input.length > 1)
+        throw new errors.CommandUseError(usage);
+    else
+        return path.resolve(process.cwd());
 }
 
 function rm() {
@@ -102,7 +156,14 @@ function tail() {
 
 }
 
-function touch() {
+/**
+ * Creates a file with the given name in
+ * the directory the user is currently in.
+ *
+ * @param input Array STDIN
+ * @return string STDOUT
+ */
+function touch(input) {
 
 }
 
@@ -112,6 +173,34 @@ function which() {
 
 function ping() {
 
+}
+
+/**
+ * Allows the user to execute JS code on the system
+ * @param input
+ * @returns {string}
+ */
+function js(input) {
+
+    function writeFunc(...input) {
+        process.stdout.write(input.join(""))
+    }
+
+    let code = input.join(" ");
+
+    let func = new Function('require', 'write', code);
+
+    try {
+        func(require, writeFunc);
+        return "";
+    }
+    catch (e) {
+        throw new errors.ScriptError(e.message);
+    }
+}
+
+function man() {
+    return 'There are no manual pages available';
 }
 
 module.exports = builtins;

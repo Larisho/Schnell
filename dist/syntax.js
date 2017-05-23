@@ -13,6 +13,8 @@
 const errors = require('./errors');
 
 /**
+ * @deprecated Abstract Syntax Tree no longer needed for evaluation.
+ *
  * Iterate through input tokens and create an
  * Abstract Syntax Tree. Also, check for syntax issues.
  * @param inputTokens array of strings

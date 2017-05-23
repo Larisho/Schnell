@@ -18,17 +18,11 @@ const readLine = require('readline');
 // Import OS for cross platform EOL
 const os = require('os');
 
-// Node.js version of NCurses' color manipulation features
-const colors = require('colors');
+// Import the utilities class
+const util = require('./util');
 
 // Import the UNIX Shell commands
 const builtins = require('./builtins');
-
-// Import the parser
-const parse = require('./parse');
-
-// Import syntactic checker
-const checkSyntax = require('./syntax');
 
 // Import evaluation module
 const evaluate = require('./evaluation');
@@ -50,44 +44,32 @@ const cli = readLine.createInterface({
     completer: null
 });
 
-colors.setTheme({
-    prompt: ['green', 'bold'],
-    stdout: ['bold', 'gray'],
-    stderr: ['red', 'underline']
-});
-
-// Create parser object
-const parser = new parse();
-
 /***********************************END CONSTANTS*******************************************************************/
 
 /**************************************HELPER FUNCTIONS*************************************************************/
 
 function buildPrompt() {
-    let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "$ ";
-    return str.prompt;
+    let str = os.userInfo()['username'] + "@" + os.hostname() + " " + builtins.pwd() + ">" + EOL + "δ ";
+    return util.promptColour(str);
 }
 
 function mainLoop(line) {
-
     try {
-        parser.parse(line);
 
-        console.log(parser.argv + EOL);
+        let output = evaluate(parse(line.trim())) || "";
 
-        let AST = checkSyntax(parser.argv);
+        util.write(false, output);
 
-        console.log(AST);
-
-        let stdout = evaluate(AST);
-
-        console.log(stdout.stdout);
+        if (output === "Exiting...")
+            process.exit(0);
 
     } catch (e) {
-        if (e.name === 'SyntaxError')
-            e.printError();
+        if (e instanceof errors.BashError)
+            util.write(true, e.getErrorMessage() + EOL);
+        else if (e instanceof errors.ScriptError)
+            util.write(true, e.getErrorMessage() + EOL);
         else
-            console.log(e.stack.toString().stderr);
+            util.write(true, e + EOL);
     }
 
     // Rebuild prompt
@@ -97,8 +79,13 @@ function mainLoop(line) {
 }
 
 function onInterrupt() {
-    console.log(EOL + "Exiting...".stdout);
+    util.write(false, "Exiting...");
     process.exit(0);
+}
+
+function parse(userInput) {
+    // tokenize the input
+    return userInput.split(" ");
 }
 
 /**********************************END HELPER FUNCTIONS*************************************************************/
