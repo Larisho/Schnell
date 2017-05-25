@@ -47,6 +47,13 @@ class CommandUseError extends BashError {
     }
 }
 
+class ArgumentsError extends BashError {
+
+    getErrorMessage() {
+        return ('Error parsing argument: ' + this.message);
+    }
+}
+
 class DirError extends BashError {
 
     getErrorMessage() {
@@ -66,6 +73,7 @@ module.exports = {
     ScriptError,
     CommandError,
     CommandUseError,
+    ArgumentsError,
     DirError,
     FileError
 };

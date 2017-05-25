@@ -10,6 +10,7 @@
  */
 
 const path = require('path');
+const yargs = require('yargs');
 const os = require('os');
 const fs = require('fs');
 const clear = require('clear');
@@ -107,7 +108,7 @@ function find() {
 
 }
 
-function mkdir() {
+function mkdir(input) {
 
 }
 
@@ -164,7 +165,90 @@ function tail() {
  * @return string STDOUT
  */
 function touch(input) {
+    let args = yargs
+        .boolean('a') // Change Access time only
+        .boolean('c') // If file does not exist, don't create it
+        .boolean('m') // Change Mod time only
+        .boolean('r') // Use the Access and Mod time of the first file on the second
+        .string('t')  // Creates file with given time as creation value
+        .string('_')  // Make sure everything in underscore is a string
+        .parse(input);
 
+    let usage = 'touch [-a | -c | -m | -r [FILE] | -t [DATE]] [FILE...]';
+
+    if (!args._ || args._.length < 1) {
+        throw new errors.CommandUseError(usage);
+    }
+
+    if (args.t) {
+        let str = args.t;
+
+        let i = 0;
+        while (true) {
+            str += " " + args._[i];
+            if (args._[i].slice(-1) === '"') {
+                args._[i] = null;
+                break;
+            }
+            args._[i] = null;
+            i++;
+        }
+
+        args.t = str.slice(1, -1);
+        args._ = args._.filter((val) => {
+            return val !== null;
+        });
+    }
+
+    function runChecks(filePath, stats) {
+        if (!args.t && !args.r) {
+            if (args.a) {
+                fs.utimesSync(filePath, Date.now()/1000, stats.mtime);
+            }
+            if (args.m) {
+                fs.utimesSync(filePath, stats.atime, Date.now()/1000);
+            }
+        }
+        else if (args.r && !args.t) {
+            if (args._.length > 1) {
+                if ((process.cwd() + path.sep + args._[0]) !== filePath) {
+                    let st = fs.statSync(process.cwd() + path.sep + args._[0]);
+                    fs.utimesSync(filePath, st.atime, st.mtime);
+                }
+
+            }
+            else {
+                throw new errors.ArgumentsError('-r');
+            }
+        }
+        else if (args.t && !args.r) {
+
+            let date = new Date(Date.parse(args.t));
+
+            if (date === "Invalid Date")
+                throw new errors.ArgumentsError('-t');
+
+            fs.utimesSync(filePath, date.getTime()/1000, date.getTime()/1000);
+        }
+    }
+
+    if (!args.c) {
+        args._.forEach(function (val) {
+            fs.closeSync(fs.openSync(process.cwd() + path.sep + val, 'a'));
+            let stats = fs.statSync(process.cwd() + path.sep + val);
+            runChecks(process.cwd() + path.sep + val, stats);
+        });
+    }
+    if (args.c) {
+        args._.forEach(function(val) {
+            if (fs.existsSync(path.join(process.cwd() + path.sep + val))) {
+                let stats = fs.statSync(process.cwd() + path.sep + val);
+                runChecks(process.cwd() + path.sep + val, stats);
+            }
+        });
+    }
+
+    return "";
 }
 
 function which() {
