@@ -100,7 +100,7 @@ function echo() {
 
 }
 
-function cat(input) {
+function cat() {
 
 }
 
@@ -108,7 +108,7 @@ function find() {
 
 }
 
-function mkdir(input) {
+function mkdir() {
 
 }
 
@@ -149,8 +149,17 @@ function pwd(input) {
         return path.resolve(process.cwd());
 }
 
-function rm() {
-
+/**
+ * Deletes the file or directory.
+ *
+ * @param input Array STDIN
+ * @return string STDOUT
+ */
+function rm(input) {
+    let args = yargs
+        .boolean('-r')
+        .boolean('-f')
+        .parse(input);
 }
 
 function tail() {
