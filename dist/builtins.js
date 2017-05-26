@@ -182,11 +182,12 @@ function touch(input) {
 
     if (args.t) {
         let str = args.t;
+        let charToMatch = str.charAt(0);
 
         let i = 0;
         while (true) {
             str += " " + args._[i];
-            if (args._[i].slice(-1) === '"') {
+            if (args._[i].slice(-1) === charToMatch) {
                 args._[i] = null;
                 break;
             }
