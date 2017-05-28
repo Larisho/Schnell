@@ -157,9 +157,30 @@ function pwd(input) {
  */
 function rm(input) {
     let args = yargs
-        .boolean('-r')
-        .boolean('-f')
+        .boolean('-r') // recursive
+        .boolean('-f') // force
+        .boolean('-i') // interactive
+        .boolean('-I') // almost interactive
+        .boolean('-v') // verbose
+        .string('_')
         .parse(input);
+
+    let limit = -1;
+    if (args.I) {
+        limit = 3;
+    }
+    if (args.i) {
+        limit = 1;
+    }
+
+    if (args.r) {
+
+    }
+    else {
+        args._.forEach(function(value) {
+
+        });
+    }
 }
 
 function tail() {
@@ -211,6 +232,8 @@ function touch(input) {
     }
 
     function runChecks(filePath, stats) {
+        filePath = path.normalize(filePath);
+
         if (!args.t && !args.r) {
             if (args.a) {
                 fs.utimesSync(filePath, Date.now()/1000, stats.mtime);
