@@ -104,14 +104,40 @@ function chmod() {
  */
 function echo(input) {
     let args = yargs.parse(input.join(' '));
+    let usage = 'Usage: echo [STRING...]';
 
-    let output = args._.join(' ');
-    util.write(false, output);
-    return output;
+    if (!args._ || args._.length < 1)
+        throw new errors.CommandUseError(usage);
+
+    return args._.join(' ');
 }
 
-function cat() {
+/**
+ * Concatenates files to STDOUT
+ *
+ * @param input Array STDIN
+ * @return {string} STDOUT
+ */
+function cat(input) {
+    let args = yargs.parse(input.join(' '));
+    let usage = 'Usage: cat [FILE...]';
 
+    if (!args._ || args._.length < 1)
+        throw new errors.CommandUseError(usage);
+
+    let stdout = '';
+    for (let value of args._) {
+        if (!path.isAbsolute(value)) {
+            value = path.resolve(value);
+        }
+        if (!fs.existsSync(value)) {
+            throw errors.FileError(value);
+        }
+
+        stdout += fs.readFileSync(value, 'utf8');
+    }
+
+    return stdout;
 }
 
 function find() {
