@@ -1,7 +1,7 @@
 {
   "name": "schnell",
-  "version": "0.0.7",
-  "description": "Schnell - The Node Shell: Modern, Cross-Platform, Intuitive Shell",
+  "version": "0.0.9",
+  "description": "Schnell - The Node Shell: Modern, Cross-Platform, Intuitive",
   "main": "./dist/schnell.js",
   "scripts": {
     "start": "node dist/schnell.js",

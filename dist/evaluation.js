@@ -2,7 +2,7 @@
 
 /**
  * @author Gabriele Bianchet-David
- * @version 0.0.1
+ * @version 0.0.9
  *
  * @description Cross-platform terminal
  *

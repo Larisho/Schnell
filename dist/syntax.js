@@ -5,6 +5,7 @@
  * @version 0.0.1
  *
  * @description Cross-platform terminal
+ * @deprecated
  *
  * File that handles parsing the syntax and creating
  * an AST of sorts.
