@@ -166,11 +166,17 @@ function rm(input) {
         .parse(input);
 
     let limit = -1;
+    let removeDirs = false;
+
     if (args.I) {
         limit = 3;
     }
     if (args.i) {
         limit = 1;
+    }
+    if (args.f) {
+        limit = -1;
+        removeDirs = true;
     }
 
     if (args.r) {
@@ -178,7 +184,11 @@ function rm(input) {
     }
     else {
         args._.forEach(function(value) {
+            if (args.v) {
+                util.write(false, "Removing " + value);
+            }
 
+            // remove file
         });
     }
 }
@@ -231,8 +241,39 @@ function touch(input) {
         });
     }
 
+    for (let value of args._) {
+        if (!path.isAbsolute(value)) {
+            value = path.resolve(value);
+        }
+    }
+
+    if (!args.c) {
+        args._.forEach(function (val) {
+            if (fs.existsSync(val)) {
+                let stats = fs.statSync(val);
+                if (stats.isDirectory()) {
+                    return;
+                }
+                fs.closeSync(fs.openSync(val, 'a'));
+                runChecks(val, stats);
+            }
+            else {
+                fs.closeSync(fs.openSync(val, 'a'));
+                let stats = fs.statSync(val);
+                runChecks(val, stats);
+            }
+        });
+    }
+    if (args.c) {
+        args._.forEach(function(val) {
+            if (fs.existsSync(val)) {
+                let stats = fs.statSync(val);
+                runChecks(val, stats);
+            }
+        });
+    }
+
     function runChecks(filePath, stats) {
-        filePath = path.normalize(filePath);
 
         if (!args.t && !args.r) {
             if (args.a) {
@@ -263,22 +304,6 @@ function touch(input) {
 
             fs.utimesSync(filePath, date.getTime()/1000, date.getTime()/1000);
         }
-    }
-
-    if (!args.c) {
-        args._.forEach(function (val) {
-            fs.closeSync(fs.openSync(process.cwd() + path.sep + val, 'a'));
-            let stats = fs.statSync(process.cwd() + path.sep + val);
-            runChecks(process.cwd() + path.sep + val, stats);
-        });
-    }
-    if (args.c) {
-        args._.forEach(function(val) {
-            if (fs.existsSync(path.join(process.cwd() + path.sep + val))) {
-                let stats = fs.statSync(process.cwd() + path.sep + val);
-                runChecks(process.cwd() + path.sep + val, stats);
-            }
-        });
     }
 
     return "";
