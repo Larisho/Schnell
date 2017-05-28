@@ -43,8 +43,8 @@ let builtins = {
 /**
  * Changes the current, working directory.
  *
- * @param input Switches and Arguments
- * @return string STDOUT
+ * @param input Array STDIN
+ * @return {string} STDOUT
  */
 function cd(input) {
 
@@ -96,8 +96,18 @@ function chmod() {
 
 }
 
-function echo() {
+/**
+ * Sends the arguments to the standard output.
+ *
+ * @param input Array STDIN
+ * @returns {string} STDOUT
+ */
+function echo(input) {
+    let args = yargs.parse(input.join(' '));
 
+    let output = args._.join(' ');
+    util.write(false, output);
+    return output;
 }
 
 function cat() {
@@ -128,7 +138,7 @@ function mv() {
  * Print the present working directory.
  *
  * @param input Array STDIN
- * @return string STDOUT
+ * @return {string} STDOUT
  */
 function pwd(input) {
     const usage = "Usage: pwd";
@@ -145,7 +155,7 @@ function pwd(input) {
  * Deletes the file or directory.
  *
  * @param input Array STDIN
- * @return string STDOUT
+ * @return {string} STDOUT
  */
 function rm(input) {
     /*    let args = yargs
@@ -194,7 +204,7 @@ function tail() {
  * the directory the user is currently in.
  *
  * @param input Array STDIN
- * @return string STDOUT
+ * @return {string} STDOUT
  */
 function touch(input) {
     let args = yargs
@@ -202,7 +212,7 @@ function touch(input) {
         .boolean('c') // If file does not exist, don't create it
         .boolean('m') // Change Mod time only
         .boolean('r') // Use the Access and Mod time of the first file on the second
-        .boolean('t')  // Creates file with given time as creation value
+        .boolean('t') // Creates file with given time as creation value
         .string('_')  // Make sure everything in underscore is a string
         .parse(input.join(' '));
 
@@ -299,8 +309,9 @@ function ping() {
 
 /**
  * Allows the user to execute JS code on the system
- * @param input
- * @returns {string}
+ *
+ * @param input Array STDIN
+ * @returns {string} STDOUT
  */
 function js(input) {
 
