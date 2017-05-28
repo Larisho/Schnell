@@ -131,22 +131,14 @@ function mv() {
  * @return string STDOUT
  */
 function pwd(input) {
+    const usage = "Usage: pwd";
 
-    const usage = "Usage: pwd [--help]";
-
-    if (input && input.length === 1) {
-        if (input[0] === "--help" || input[0] === "-h") {
-            return usage;
-        }
-        else {
-            throw new errors.CommandUseError(usage);
-        }
-
-    }
-    else if (input && input.length > 1)
+    if (input && input.length > 0) {
         throw new errors.CommandUseError(usage);
-    else
+    }
+    else {
         return path.resolve(process.cwd());
+    }
 }
 
 /**
@@ -156,41 +148,41 @@ function pwd(input) {
  * @return string STDOUT
  */
 function rm(input) {
-    let args = yargs
-        .boolean('-r') // recursive
-        .boolean('-f') // force
-        .boolean('-i') // interactive
-        .boolean('-I') // almost interactive
-        .boolean('-v') // verbose
-        .string('_')
-        .parse(input);
+    /*    let args = yargs
+     .boolean('r') // recursive
+     .boolean('f') // force
+     .boolean('i') // interactive
+     .boolean('I') // almost interactive
+     .boolean('v') // verbose
+     .string('_')
+     .parse(input);
 
-    let limit = -1;
-    let removeDirs = false;
+     let limit = -1;
+     let removeDirs = false;
 
-    if (args.I) {
-        limit = 3;
-    }
-    if (args.i) {
-        limit = 1;
-    }
-    if (args.f) {
-        limit = -1;
-        removeDirs = true;
-    }
+     if (args.I) {
+     limit = 3;
+     }
+     if (args.i) {
+     limit = 1;
+     }
+     if (args.f) {
+     limit = -1;
+     removeDirs = true;
+     }
 
-    if (args.r) {
+     if (args.r) {
 
-    }
-    else {
-        args._.forEach(function(value) {
-            if (args.v) {
-                util.write(false, "Removing " + value);
-            }
+     }
+     else {
+     args._.forEach(function(value) {
+     if (args.v) {
+     util.write(false, "Removing " + value);
+     }
 
-            // remove file
-        });
-    }
+     // remove file
+     });
+     }*/
 }
 
 function tail() {
@@ -210,9 +202,9 @@ function touch(input) {
         .boolean('c') // If file does not exist, don't create it
         .boolean('m') // Change Mod time only
         .boolean('r') // Use the Access and Mod time of the first file on the second
-        .string('t')  // Creates file with given time as creation value
+        .boolean('t')  // Creates file with given time as creation value
         .string('_')  // Make sure everything in underscore is a string
-        .parse(input);
+        .parse(input.join(' '));
 
     let usage = 'touch [-a | -c | -m | -r [FILE] | -t [DATE]] [FILE...]';
 
@@ -221,21 +213,9 @@ function touch(input) {
     }
 
     if (args.t) {
-        let str = args.t;
-        let charToMatch = str.charAt(0);
+        args.t = args._[0];
 
-        let i = 0;
-        while (true) {
-            str += " " + args._[i];
-            if (args._[i].slice(-1) === charToMatch) {
-                args._[i] = null;
-                break;
-            }
-            args._[i] = null;
-            i++;
-        }
-
-        args.t = str.slice(1, -1);
+        args._[0] = null;
         args._ = args._.filter((val) => {
             return val !== null;
         });
@@ -265,7 +245,7 @@ function touch(input) {
         });
     }
     if (args.c) {
-        args._.forEach(function(val) {
+        args._.forEach(function (val) {
             if (fs.existsSync(val)) {
                 let stats = fs.statSync(val);
                 runChecks(val, stats);
@@ -277,10 +257,10 @@ function touch(input) {
 
         if (!args.t && !args.r) {
             if (args.a) {
-                fs.utimesSync(filePath, Date.now()/1000, stats.mtime);
+                fs.utimesSync(filePath, Date.now() / 1000, stats.mtime);
             }
             if (args.m) {
-                fs.utimesSync(filePath, stats.atime, Date.now()/1000);
+                fs.utimesSync(filePath, stats.atime, Date.now() / 1000);
             }
         }
         else if (args.r && !args.t) {
@@ -302,7 +282,7 @@ function touch(input) {
             if (date === "Invalid Date")
                 throw new errors.ArgumentsError('-t');
 
-            fs.utimesSync(filePath, date.getTime()/1000, date.getTime()/1000);
+            fs.utimesSync(filePath, date.getTime() / 1000, date.getTime() / 1000);
         }
     }
 

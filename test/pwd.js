@@ -15,13 +15,6 @@ module.exports = function() {
         actualOutput.should.equal(expectedOutput);
     });
 
-    it('should print the help message when --help is added', function() {
-        let actualOutput = builtins.pwd(['--help']);
-        let expectedOutput = 'Usage: pwd [--help]';
-
-        actualOutput.should.equal(expectedOutput);
-    });
-
     it('should return help error message when garbage is passed as a parameter', function() {
         should.Throw(function() {
             builtins.pwd(['dwandwakn']);
