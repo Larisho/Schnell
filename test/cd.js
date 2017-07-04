@@ -53,7 +53,7 @@ module.exports = function() {
     });
 
     it('should accept an absolute path and change the directory to it', function() {
-        let actualPath = os.tmpdir();
+        let actualPath = os.homedir();
 
         builtins.cd([actualPath]);
 
