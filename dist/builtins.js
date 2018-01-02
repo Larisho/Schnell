@@ -84,8 +84,82 @@ function cd(input) {
     }
 }
 
-function ls() {
+function ls(input) {
+    let args = yargs
+        .boolean('a') // Show all
+        .boolean('r') // Reverse the order of the items
+        .boolean('R') // Recursively list files
+        .boolean('A') // Show almost all (no . or ..)
+        .boolean('t') // Sort by time
+        .string('l')  // Show all details of files
+        .parse(input.join(' '));
 
+    let output = '';
+    let listOfStats = [];
+
+    if (args.R) {
+        // implement
+    }
+    else {
+        if (!args._) {
+            let files = fs.readdirSync('.');
+            if (args.a) {
+                file.unshift('..');
+                file.unshift('.');
+            }
+            if (!args.A && !args.a) {
+                files = files.filter((val) => {
+                    return val.charAt(0) !== '.';
+                });
+            }
+
+            files.forEach((value) => {
+                let stat = fs.statSync(value);
+                listOfStats.push({
+                    permissions: stat.mode,
+                    nLinks: stat.nlink,
+                    uid: stat.uid,
+                    guid: stat.guid,
+                    size: stat.size,
+                    time: stat.mtime,
+                    name: value
+                });
+            });
+        }
+        else {
+            // do same as args.R
+        }
+    }
+
+    if (args.t) {
+        listOfStats.sort((a, b) => {
+            if (Date.parse(a.time) < Date.parse(b.time))
+                return -1;
+            if (Date.parse(b.time) < Date.parse(a.time))
+                return 1;
+
+            return 0;
+        });
+    }
+
+    if (args.r) {
+        listOfStats.reverse();
+    }
+
+    listOfStats.forEach((value) => {
+        if (args.l) {
+            output += value.permissions;
+            output += value.nLinks;
+            output += value.uid;
+            output += value.guid;
+            output += value.size;
+            output += value.time;
+        }
+
+        output += value.name + '\n';
+    });
+
+    return output;
 }
 
 function cp() {
